@@ -224,9 +224,16 @@ public class JREUtils {
             ActivityManager.MemoryInfo ami = new ActivityManager.MemoryInfo();
             manager.getMemoryInfo(ami);
             long availMem = (ami.availMem-ami.threshold)/(1024*1024);
-            long allocatedRam = Math.max(availMem, 1536);
+            long totalMem = ami.totalMem/(1024*1024);
+            // Cap the heap well below both "currently free" and "device total": grabbing 100% of
+            // availMem (the old behavior) starved everything else running alongside the JVM
+            // (native chunk/texture/swapchain buffers, OpenXR compositor, audio) of headroom,
+            // which shows up as GC/paging-driven stutter rather than an outright OOM. 45% of total
+            // RAM, capped at 4096MB, leaves the rest for that native/off-heap usage.
+            long allocatedRam = Math.min(availMem, (long) (totalMem * 0.45));
+            allocatedRam = Math.min(Math.max(allocatedRam, 1536), 4096);
 
-            Logger.getInstance().appendToLog("Setting JVM memory to " + allocatedRam + "MB");
+            Logger.getInstance().appendToLog("Setting JVM memory to " + allocatedRam + "MB (total device RAM: " + totalMem + "MB, available: " + availMem + "MB)");
 
             userArgs.add("-Xms" + 1024 + "M");
             userArgs.add("-Xmx" + allocatedRam + "M");

@@ -13,7 +13,7 @@
   "disableShaderOptimization": "false",
   "keyboardKeys": "`1234567890-=qwertyuiop[]\\asdfghjkl;':\"zxcvbnm,./?<>",
   "FBTOFFSETS": "0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,0.0;0.0,0.0,0.0",
-  "weaponCollisionNew": "true",
+  "weaponCollisionNew": "AUTO",
   "vrTouchHotbar": "true",
   "useCrosshairOcclusion": "true",
   "displayMirrorMode": "OFF",

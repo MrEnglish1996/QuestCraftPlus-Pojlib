@@ -832,6 +832,69 @@ public class GLFW
         return GLFW_PLATFORM_X11;
     }
 
+    public static boolean glfwPlatformSupported(int platform) {
+        return platform == GLFW_PLATFORM_X11;
+    }
+
+    // Stubs for LWJGL 3.4.x GLFW API surface added since this shim was written (there's no real
+    // window system on Android; these exist so callers compiled against current LWJGL resolve).
+    public static void glfwFocusWindow(long window) {}
+    public static void glfwHideWindow(long window) {}
+    public static void glfwIconifyWindow(long window) {}
+    public static void glfwMaximizeWindow(long window) {}
+    public static void glfwRestoreWindow(long window) {}
+
+    public static void glfwInitAllocator(long allocator) {}
+    public static void glfwSetGamma(long monitor, float gamma) {}
+    public static void glfwSetWindowAspectRatio(long window, int numer, int denom) {}
+
+    public static long glfwGetProcAddress(CharSequence procname) {
+        return 0L;
+    }
+
+    @Nullable
+    public static String glfwGetMonitorName(long monitor) {
+        return "Unknown";
+    }
+
+    public static long glfwGetMonitorUserPointer(long monitor) {
+        return 0L;
+    }
+
+    public static void glfwSetMonitorUserPointer(long monitor, long pointer) {}
+
+    @Nullable
+    public static String glfwGetWindowTitle(long window) {
+        return "";
+    }
+
+    public static float glfwGetWindowOpacity(long window) {
+        return 1.0f;
+    }
+
+    public static void glfwSetWindowOpacity(long window, float opacity) {}
+
+    public static long glfwGetWindowUserPointer(long window) {
+        return 0L;
+    }
+
+    public static void glfwSetWindowUserPointer(long window, long pointer) {}
+
+    @Nullable
+    public static ByteBuffer glfwGetJoystickHats(int jid) {
+        return null;
+    }
+
+    // IME preedit (candidate-window) API: Minecraft has no IME candidate UI, so left unimplemented.
+    public static void glfwResetPreeditText(long window) {}
+
+    public static void glfwGetPreeditCursorRectangle(long window, @Nullable IntBuffer x, @Nullable IntBuffer y, @Nullable IntBuffer w, @Nullable IntBuffer h) {}
+
+    @Nullable
+    public static IntBuffer glfwGetPreeditCandidate(long window, int index, @Nullable IntBuffer textCount) {
+        return null;
+    }
+
     @NativeType("GLFWwindow *")
     public static long glfwGetCurrentContext() {
         long __functionAddress = Functions.GetCurrentContext;

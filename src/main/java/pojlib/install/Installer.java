@@ -30,20 +30,35 @@ import java.util.concurrent.TimeUnit;
 //This works for the base game as well as mod loaders
 public class Installer {
 
+    // Bumped whenever the bundled JRE changes (e.g. a Java major version bump). Minecraft 26.2+
+    // requires Java 25; the JRE below is a self-built OpenJDK 25 Android/aarch64 runtime, since
+    // QuestCraftPlusPlus's own android-openjdk-build-multiarch only publishes up to Java 22.
+    private static final String JRE_VERSION = "25";
+
     public static void installJVM(Activity activity, boolean force) {
         Logger.getInstance().appendToLog("Checking JRE");
         File jre = new File(activity.getFilesDir(), "runtimes/JRE");
-        String jreURL = "https://github.com/QuestCraftPlusPlus/android-openjdk-build-multiarch/releases/latest/download/JRE.zip";
+        File jreVersionMarker = new File(jre, ".jre_version");
+        String jreURL = "https://github.com/MrEnglish1996/QuestCraftPlus-Pojlib/releases/download/jre25-android-arm64/JRE25.zip";
 
         try {
-            if (!jre.exists() || force) {
-                Logger.getInstance().appendToLog("Installing JRE");
+            boolean versionMismatch;
+            try {
+                versionMismatch = !jre.exists() || !JRE_VERSION.equals(FileUtil.read(jreVersionMarker.getPath()).trim());
+            } catch (IOException e) {
+                versionMismatch = true;
+            }
+
+            if (versionMismatch || force) {
+                Logger.getInstance().appendToLog("Installing JRE " + JRE_VERSION);
+                FileUtils.deleteDirectory(jre);
                 File jreZip = new File(activity.getFilesDir() + "/runtimes/JRE.zip");
                 DownloadUtils.downloadFile(jreURL, jreZip);
                 DownloadManager.reset();
                 FileUtil.unzipArchive(jreZip.getPath(), activity.getFilesDir() + "/runtimes/JRE");
                 Files.copy(Paths.get(activity.getApplicationInfo().nativeLibraryDir + "/libawt_xawt.so"), Paths.get(activity.getFilesDir() + "/runtimes/JRE/lib/libawt_xawt.so"));
                 jreZip.delete();
+                FileUtil.write(jreVersionMarker.getPath(), JRE_VERSION.getBytes());
             }
 
             Logger.getInstance().appendToLog("JRE installed");

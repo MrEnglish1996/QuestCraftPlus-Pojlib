@@ -25,10 +25,12 @@ public class DownloadUtils {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", "QuestCraft");
                 conn.setConnectTimeout(10000);
+                conn.setReadTimeout(30000);
                 conn.setDoInput(true);
                 conn.connect();
 
-                if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                int responseCode = conn.getResponseCode();
+                if (responseCode == HttpURLConnection.HTTP_OK) {
                     if(size == -1) {
                         size = conn.getContentLengthLong();
                     }
@@ -38,6 +40,8 @@ public class DownloadUtils {
                     }
                     return;
                 }
+
+                throw new IOException("Unexpected HTTP " + responseCode + " from " + url);
             } catch (IOException e) {
                 if (++attempts >= MAX_RETRIES || e instanceof SSLException) {
                     throw new IOException("Unable to download from " + url, e);

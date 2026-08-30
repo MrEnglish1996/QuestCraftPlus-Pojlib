@@ -22,6 +22,13 @@ public class StreamDL extends InputStream {
         return b;
     }
 
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        int n = in.read(b, off, len);
+        bytesReceived(n);
+        return n;
+    }
+
     public void addListener(StreamListener listener) {
         listeners.add(listener);
     }
@@ -34,6 +41,20 @@ public class StreamDL extends InputStream {
 
         for (StreamListener l : listeners) {
             l.byteReceived(b, count);
+        }
+    }
+
+    // Bulk-read counterpart of byteReceived(); avoids falling back to the JDK's default
+    // read(byte[],int,int), which just loops read() one byte at a time and made every
+    // download (LWJGL, client jar, libraries, the JRE) far slower than the network allowed.
+    private void bytesReceived(int n) {
+        if (n > 0) {
+            count += n;
+            DownloadManager.addBytes(n);
+        }
+
+        for (StreamListener l : listeners) {
+            l.byteReceived(n > 0 ? 1 : -1, count);
         }
     }
 }

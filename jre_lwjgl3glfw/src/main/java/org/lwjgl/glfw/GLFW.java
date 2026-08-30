@@ -895,6 +895,21 @@ public class GLFW
         return null;
     }
 
+    @Nullable
+    public static GLFWPreeditCallback glfwSetPreeditCallback(long window, @Nullable GLFWPreeditCallbackI cbfun) {
+        return null;
+    }
+
+    @Nullable
+    public static GLFWIMEStatusCallback glfwSetIMEStatusCallback(long window, @Nullable GLFWIMEStatusCallbackI cbfun) {
+        return null;
+    }
+
+    @Nullable
+    public static GLFWPreeditCandidateCallback glfwSetPreeditCandidateCallback(long window, @Nullable GLFWPreeditCandidateCallbackI cbfun) {
+        return null;
+    }
+
     @NativeType("GLFWwindow *")
     public static long glfwGetCurrentContext() {
         long __functionAddress = Functions.GetCurrentContext;
@@ -1175,7 +1190,8 @@ public class GLFW
     public static void glfwPostEmptyEvent() {}
 
     public static int glfwGetInputMode(@NativeType("GLFWwindow *") long window, int mode) {
-        return internalGetWindow(window).inputModes.get(mode);
+        Integer value = internalGetWindow(window).inputModes.get(mode);
+        return value != null ? value : 0;
     }
 
     public static void glfwSetInputMode(@NativeType("GLFWwindow *") long window, int mode, int value) {

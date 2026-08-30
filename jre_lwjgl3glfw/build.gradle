@@ -20,6 +20,11 @@ jar {
         }
     }
     exclude 'net/java/openjdk/cacio/ctc/**'
+    // Multi-release-jar variant classes (org.lwjgl core ships Java 11/17/21 bytecode variants of a
+    // few perf-sensitive classes under here). We don't set Multi-Release: true in the manifest, so
+    // the JVM never loads these anyway - they're dead weight that Jetifier chokes on regardless
+    // (it doesn't understand newer class file versions), so strip them from the merge entirely.
+    exclude 'META-INF/versions/**'
 }
 
 java {

@@ -21,8 +21,8 @@ public class DownloadUtils {
         int attempts = 0;
 
         while (true) {
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             try {
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestProperty("User-Agent", "QuestCraft");
                 conn.setConnectTimeout(10000);
                 conn.setReadTimeout(30000);
@@ -43,6 +43,10 @@ public class DownloadUtils {
 
                 throw new IOException("Unexpected HTTP " + responseCode + " from " + url);
             } catch (IOException e) {
+                // on a failed attempt, disconnect explicitly rather than leaving the connection
+                // dangling for the pool to eventually reclaim - matters most here since retries
+                // can otherwise pile up several abandoned connections before finally giving up
+                conn.disconnect();
                 if (++attempts >= MAX_RETRIES || e instanceof SSLException) {
                     throw new IOException("Unable to download from " + url, e);
                 }
@@ -60,9 +64,12 @@ public class DownloadUtils {
         try {
             try (OutputStream bos2 = new BufferedOutputStream(Files.newOutputStream(tempOut.toPath()))) {
                 download(new URL(url), bos2, size);
-                tempOut.renameTo(out);
                 bos2.close();
-                if (tempOut.exists()) tempOut.delete();
+                // File.renameTo can silently fail (different filesystem, permissions, etc.) -
+                // check it rather than assuming out now has the downloaded content
+                if (!tempOut.renameTo(out)) {
+                    throw new IOException("Failed to move downloaded file into place: " + tempOut + " -> " + out);
+                }
             } catch (IOException th2) {
                 if (tempOut.exists()) tempOut.delete();
                 throw th2;

@@ -29,6 +29,14 @@ public class StreamDL extends InputStream {
         return n;
     }
 
+    @Override
+    public void close() throws IOException {
+        // InputStream.close() is a no-op by default - without overriding it here, the
+        // try-with-resources around this stream in DownloadUtils.download() never actually
+        // closes the underlying HttpURLConnection response stream, leaking it on every download.
+        in.close();
+    }
+
     public void addListener(StreamListener listener) {
         listeners.add(listener);
     }
